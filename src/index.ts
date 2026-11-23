@@ -6,6 +6,8 @@ import serviceRoutes from "./routes/service.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import appointmentRoutes from "./routes/appointment.routes.js";
 import adminManageRoutes from "./routes/adminManage.routes.js";
+import paymentRoutes from "./routes/payment.routes.js";
+import webhookRoutes from "./routes/webhook.routes.js";
 
 dotenv.config({ quiet: true });
 
@@ -18,6 +20,10 @@ app.use(
     credentials: true,
   })
 );
+
+// Stripe webhook needs the raw body, so it must come before express.json()
+app.use("/payments/webhook", webhookRoutes);
+
 app.use(express.json());
 
 app.get("/", (req: Request, res: Response) => {
@@ -28,6 +34,7 @@ app.use("/services", serviceRoutes);
 app.use("/admin", adminRoutes);
 app.use("/admin", adminManageRoutes);
 app.use("/appointments", appointmentRoutes);
+app.use("/payments", paymentRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {
