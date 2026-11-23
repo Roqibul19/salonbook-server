@@ -117,6 +117,44 @@ router.patch("/appointments/:id/cancel", async (req: Request<{ id: string }>, re
   res.send({ message: "Appointment cancelled" });
 });
 
+// ---------------- transactions ----------------
+
+// GET /admin/transactions - read only (payment records are written only by the Stripe webhook)
+router.get("/transactions", async (req: Request, res: Response) => {
+  const transactions = await collections
+    .transactions()
+    .aggregate([
+      { $sort: { createdAt: -1 } },
+      {
+        $lookup: {
+          from: "users",
+          localField: "customerId",
+          foreignField: "_id",
+          as: "customer",
+          pipeline: [{ $project: { name: 1, email: 1, image: 1 } }],
+        },
+      },
+      {
+        $lookup: {
+          from: "appointments",
+          localField: "appointmentId",
+          foreignField: "_id",
+          as: "appointment",
+          pipeline: [
+            { $lookup: { from: "services", localField: "serviceId", foreignField: "_id", as: "service" } },
+            { $unwind: { path: "$service", preserveNullAndEmptyArrays: true } },
+            { $project: { appointmentDate: 1, timeSlot: 1, serviceName: "$service.serviceName" } },
+          ],
+        },
+      },
+      { $unwind: { path: "$customer", preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: "$appointment", preserveNullAndEmptyArrays: true } },
+    ])
+    .toArray();
+
+  res.send(transactions);
+});
+
 // ---------------- users ----------------
 
 // GET /admin/users - all registered customers
