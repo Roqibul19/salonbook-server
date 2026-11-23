@@ -14,6 +14,10 @@ export async function connectDB(): Promise<Db> {
   const client = new MongoClient(uri);
   await client.connect();
   db = client.db(process.env.DB_NAME || "salonbook");
+
+  // one transaction per Stripe checkout session (protects against duplicate webhook events)
+  await db.collection("transactions").createIndex({ stripeSessionId: 1 }, { unique: true });
+
   console.log("MongoDB connected");
   return db;
 }
