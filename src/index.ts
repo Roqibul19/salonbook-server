@@ -14,12 +14,29 @@ dotenv.config({ quiet: true });
 const app = express();
 const port = process.env.PORT || 5000;
 
+// CLIENT_URL can hold more than one URL separated by commas (e.g. local + live)
+const allowedOrigins = (process.env.CLIENT_URL || "")
+  .split(",")
+  .map((url) => url.trim())
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: [process.env.CLIENT_URL as string],
+    origin: allowedOrigins,
     credentials: true,
   })
 );
+
+// make sure MongoDB is connected before any route runs (works on Vercel too)
+app.use(async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error("Failed to connect to MongoDB:", (error as Error).message);
+    res.status(503).send({ message: "Database is not available. Please try again." });
+  }
+});
 
 // Stripe webhook needs the raw body, so it must come before express.json()
 app.use("/payments/webhook", webhookRoutes);
@@ -47,13 +64,11 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   res.status(500).send({ message: "Something went wrong on the server" });
 });
 
-connectDB()
-  .then(() => {
-    app.listen(port, () => {
-      console.log(`SalonBook server running on port ${port}`);
-    });
-  })
-  .catch((error) => {
-    console.error("Failed to connect to MongoDB:", error.message);
-    process.exit(1);
+// on Vercel the app is exported as a serverless function, locally we start a normal server
+if (!process.env.VERCEL) {
+  app.listen(port, () => {
+    console.log(`SalonBook server running on port ${port}`);
   });
+}
+
+export default app;
