@@ -8,8 +8,8 @@ This server is built with **Express.js + TypeScript + MongoDB**. Every protected
 
 | | |
 |---|---|
-| Live Website | _Coming soon_ |
-| Live API | _Coming soon_ |
+| Live Website | https://salonbook-client-teal.vercel.app |
+| Live API | https://salonbook-server-xi.vercel.app |
 | Client Repository | https://github.com/Roqibul19/salonbook-client |
 | Server Repository | https://github.com/Roqibul19/salonbook-server |
 
