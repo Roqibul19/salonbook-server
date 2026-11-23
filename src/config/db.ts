@@ -1,5 +1,5 @@
 import { MongoClient, Db } from "mongodb";
-import type { Service } from "../types/index.js";
+import type { Service, User } from "../types/index.js";
 
 let db: Db | null = null;
 
@@ -26,5 +26,6 @@ function getDB(): Db {
 }
 
 export const collections = {
+  users: () => getDB().collection<User>("users"), // managed by Better Auth
   services: () => getDB().collection<Service>("services"),
 };
