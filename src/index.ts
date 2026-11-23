@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 import serviceRoutes from "./routes/service.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
+import appointmentRoutes from "./routes/appointment.routes.js";
 
 dotenv.config({ quiet: true });
 
@@ -24,6 +25,7 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/services", serviceRoutes);
 app.use("/admin", adminRoutes);
+app.use("/appointments", appointmentRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {
