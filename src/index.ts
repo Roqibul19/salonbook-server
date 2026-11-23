@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 import serviceRoutes from "./routes/service.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
 
 dotenv.config({ quiet: true });
 
@@ -22,6 +23,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/services", serviceRoutes);
+app.use("/admin", adminRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {
