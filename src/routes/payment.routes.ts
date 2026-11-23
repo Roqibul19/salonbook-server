@@ -39,6 +39,8 @@ router.post("/create-checkout-session", async (req: Request, res: Response) => {
   const session = await getStripe().checkout.sessions.create({
     mode: "payment",
     customer_email: req.user!.email,
+    // always charge in our own currency so the transaction matches the service price
+    adaptive_pricing: { enabled: false },
     line_items: [
       {
         quantity: 1,
