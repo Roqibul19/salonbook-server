@@ -38,6 +38,17 @@ export interface Appointment {
   createdAt: Date;
 }
 
+export interface Transaction {
+  _id?: ObjectId;
+  appointmentId: ObjectId;
+  customerId: ObjectId;
+  amount: number;
+  currency: string;
+  stripeSessionId: string;
+  status: "paid" | "failed";
+  createdAt: Date;
+}
+
 export type ServiceStatus = "active" | "inactive";
 
 export interface Service {
