@@ -22,6 +22,22 @@ export interface AuthUser {
   role: UserRole;
 }
 
+export type AppointmentStatus = "pending" | "confirmed" | "cancelled";
+export type PaymentStatus = "unpaid" | "paid";
+
+export interface Appointment {
+  _id?: ObjectId;
+  serviceId: ObjectId;
+  customerId: ObjectId;
+  appointmentDate: string; // "YYYY-MM-DD"
+  timeSlot: string;
+  message: string;
+  servicePrice: number; // price at the time of booking
+  paymentStatus: PaymentStatus;
+  status: AppointmentStatus;
+  createdAt: Date;
+}
+
 export type ServiceStatus = "active" | "inactive";
 
 export interface Service {
