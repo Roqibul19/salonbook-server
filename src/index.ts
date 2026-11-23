@@ -8,6 +8,7 @@ import appointmentRoutes from "./routes/appointment.routes.js";
 import adminManageRoutes from "./routes/adminManage.routes.js";
 import paymentRoutes from "./routes/payment.routes.js";
 import webhookRoutes from "./routes/webhook.routes.js";
+import { getAllowedOrigins } from "./utils/clientUrl.js";
 
 dotenv.config({ quiet: true });
 
@@ -15,14 +16,9 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // CLIENT_URL can hold more than one URL separated by commas (e.g. local + live)
-const allowedOrigins = (process.env.CLIENT_URL || "")
-  .split(",")
-  .map((url) => url.trim())
-  .filter(Boolean);
-
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: getAllowedOrigins(),
     credentials: true,
   })
 );

@@ -3,6 +3,7 @@ import { ObjectId } from "mongodb";
 import { collections } from "../config/db.js";
 import { CURRENCY, getStripe } from "../config/stripe.js";
 import { verifyToken, verifyCustomer } from "../middlewares/auth.js";
+import { getClientUrl } from "../utils/clientUrl.js";
 
 const router = Router();
 
@@ -34,7 +35,7 @@ router.post("/create-checkout-session", async (req: Request, res: Response) => {
   }
 
   const service = await collections.services().findOne({ _id: appointment.serviceId });
-  const clientUrl = process.env.CLIENT_URL;
+  const clientUrl = getClientUrl(req);
 
   const session = await getStripe().checkout.sessions.create({
     mode: "payment",
