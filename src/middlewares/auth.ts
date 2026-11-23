@@ -7,11 +7,16 @@ import type { UserRole } from "../types/index.js";
 // public keys published by Better Auth (client app) at /api/auth/jwks
 let jwks: ReturnType<typeof createRemoteJWKSet> | null = null;
 
+// "https://example.com/ " -> "https://example.com" (must match the token's issuer exactly)
+function getAuthUrl(): string {
+  const authUrl = (process.env.AUTH_URL || "").trim().replace(/\/+$/, "");
+  if (!authUrl) throw new Error("AUTH_URL is not defined in environment variables");
+  return authUrl;
+}
+
 function getJWKS() {
   if (!jwks) {
-    const authUrl = process.env.AUTH_URL;
-    if (!authUrl) throw new Error("AUTH_URL is not defined in environment variables");
-    jwks = createRemoteJWKSet(new URL("/api/auth/jwks", authUrl));
+    jwks = createRemoteJWKSet(new URL("/api/auth/jwks", getAuthUrl()));
   }
   return jwks;
 }
@@ -29,12 +34,15 @@ export async function verifyToken(req: Request, res: Response, next: NextFunctio
 
   let userId: string;
   try {
+    const authUrl = getAuthUrl();
     const { payload } = await jwtVerify(token, getJWKS(), {
-      issuer: process.env.AUTH_URL,
-      audience: process.env.AUTH_URL,
+      issuer: authUrl,
+      audience: authUrl,
     });
     userId = String(payload.sub);
-  } catch {
+  } catch (error) {
+    // the reason shows up in the server logs (never sent to the client)
+    console.error("JWT verification failed:", (error as Error).message);
     res.status(401).send({ message: "Unauthorized: invalid or expired token" });
     return;
   }
